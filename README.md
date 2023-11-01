@@ -1,1 +1,3 @@
-# simpleUnet
+This is a repository that implements a simple Unet network to demonstrate simple semantic segmentation for applied project in forestry, geology...
+
+Originally based on: https://github.com/marianocabezas/trees
