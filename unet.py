@@ -140,16 +140,12 @@ def train(cases, gt_names, roiNames, net_name,  nClasses=4, verbose=1):
     mosaics = [cv2.imread(c_i) for c_i in cases]
 
     print(roiNames)
-    rois = [(cv2.imread(c_i,cv2.IMREAD_GRAYSCALE) < 100).astype(np.uint8) for c_i in roiNames]
+    rois = [(cv2.imread(c_i,cv2.IMREAD_GRAYSCALE) > 100).astype(np.uint8) for c_i in roiNames]
+    #rois = [(cv2.imread(c_i,cv2.IMREAD_GRAYSCALE) < 200).astype(np.uint8) for c_i in roiNames]
 
     #Print Unique values in the labels files
     print("Unique labels in each of the ground truth files")
     for yi in y: print(np.unique(yi))
-
-    originalSizes= []
-    for c_i in cases:
-        nowIm=cv2.imread(c_i)
-        originalSizes.append((nowIm.shape[1],nowIm.shape[0]))
 
     # Number of Channels
     numChannels=3
@@ -189,8 +185,8 @@ def train(cases, gt_names, roiNames, net_name,  nClasses=4, verbose=1):
         train_roi = rois[:i] + rois[i+1:]
         train_x = norm_x[:i] + norm_x[i+1:]
 
-        val_split = 0.1
-        batch_size = 8
+        val_split = 0.2
+        batch_size = 16
         patch_size = (int(options["patch_size"]), int(options["patch_size"]))
 
         #patch_size = (64, 64)
@@ -243,12 +239,12 @@ def train(cases, gt_names, roiNames, net_name,  nClasses=4, verbose=1):
 
             print('Training datasets (with validation)')
             train_dataset = Cropping2DDataset(
-                d_train, l_train, r_train, numLabels=nClasses,important=codedImportant, unimportant=codedUnImportant, ignore=codedIgnore,augment=augment,decrease=decrease, patch_size=patch_size, overlap=overlap
+                d_train, l_train, r_train, numLabels=nClasses+1,important=codedImportant, unimportant=codedUnImportant, ignore=codedIgnore,augment=augment,decrease=decrease, patch_size=patch_size, overlap=overlap
             )
 
             print('Validation datasets (with validation)')
             val_dataset = Cropping2DDataset(
-                d_val, l_val, r_val, numLabels=nClasses,important=codedImportant, unimportant=codedUnImportant, ignore=codedIgnore,augment=augment,decrease=decrease, patch_size=patch_size, overlap=overlap
+                d_val, l_val, r_val, numLabels=nClasses+1,important=codedImportant, unimportant=codedUnImportant, ignore=codedIgnore,augment=augment,decrease=decrease, patch_size=patch_size, overlap=overlap
             )
 
 
@@ -289,7 +285,7 @@ def train(cases, gt_names, roiNames, net_name,  nClasses=4, verbose=1):
         #write the results
         resultFileName = "test"+str(i)+"augm"+str(augment)+"decrease"+str(decreaseRead)+".png"
         cv2.imwrite(resultFileName,
-            (pred_y).astype(np.uint8)
+            (pred_y*30).astype(np.uint8)
         )
         print("Results FILE!!!!!!!!!!!!!!!!!!!!! "+resultFileName)
 
